@@ -6,12 +6,14 @@
                     grid-list-md>
                 <v-layout column wrap>
                     <v-flex
-                            v-for="card in dataS"
-                    >
+                            v-for="card in dataS" v-bind:key="card.textAlign">
                         <v-card max-width="344"
                                 class="mx-auto">
                             <v-list-item>
-                                <v-list-item-avatar color="grey"></v-list-item-avatar>
+                                <v-avatar style="margin-left: -5px; margin-right: 5px"
+                                          color="grey">
+                                    <img :src="card['ava']">
+                                </v-avatar>
                                 <v-list-item-content>
                                     <v-list-item-title class="headline">{{card.creator.nickName}}</v-list-item-title>
                                     <v-list-item-subtitle>{{card.creator.city.title}}</v-list-item-subtitle>
@@ -31,10 +33,10 @@
                             </v-img>
                             <v-pip class="video" v-show="card['files'][0]['typeBool']" :video-options="card.files[0]"/>
                             <v-card-title>
-                                Top western road trips
+                                Новость дня
                             </v-card-title>
                             <v-card-subtitle>
-                                1,000 miles of wonder
+                                {{card.creator.link}}
                             </v-card-subtitle>
                             <v-card-actions>
                                 <v-btn icon>
@@ -68,14 +70,6 @@
                         </v-card>
                     </v-flex>
                 </v-layout>
-                <!--                <div class="text-center">-->
-                <!--                    <v-pagination-->
-                <!--                            v-model="page"-->
-                <!--                            @input="updateList(page)"-->
-                <!--                            :length="totalPage"-->
-                <!--                            circle-->
-                <!--                    ></v-pagination>-->
-                <!--                </div>-->
             </v-container>
             <scroll-loader :loader-method="updateList" :loader-enable="loadMore">
             </scroll-loader>
@@ -94,8 +88,7 @@
         data() {
             return {
                 dataS: [],
-                dataP: [],
-                page: 0,
+                page: 1,
                 totalPage: Number,
                 loadMore: true,
                 pageSize: Number,
@@ -103,7 +96,6 @@
         },
         methods: {
             updateList() {
-                console.log(this.dataS)
                 let paramsData = {
                     command: 'sn_get_my_feed_posts',
                     params: {
@@ -113,40 +105,44 @@
                 const formData = new FormData();
                 formData.append('data', JSON.stringify(paramsData));
                 formData.append('token', 'b15b956c-36d5-4100-a873-3250d100c351')
-                console.log(paramsData)
                 fetch('https://api.autovse.kz/app/rest', {
                     method: "POST",
                     body: formData
                 })
                     .then(res => res.json())
                     .then((json) => {
-
-                        for (var i = 0; i < json.list.length; i++) {
-                            json.list[i]['show'] = false;
-                            if (json.list[i]['files'][0]['type'] !== 'VIDEO') {
-                                json.list[i]['files'][0]['typeBool'] = false;
-                            } else {
-                                json.list[i]['files'][0]['typeBool'] = true;
-                                json.list[i]['files'][0]['width'] = '100%';
-                                json.list[i]['files'][0]['src'] = json.list[i]['files'][0]['file']['small'];
-                                json.list[i]['files'][0]['poster'] = json.list[i]['files'][0]['file']['thumbnail'];
-                            }
-                        }
-                        var jsons = [];
-                        jsons.push(json.list);
-                        this.dataS = json.list;
-                        console.log(this.dataS)
-                        console.log(jsons)
+                        this.dataS = this.dataS.concat(this.srcRender(json))
                         this.dataS.length < this.pageSize && (this.loadMore = false)
                     })
                     .catch((err) => {
                         console.error(err);
                     });
             },
+            srcRender(json) {
+                for (var i = 0; i < json.list.length; i++) {
+                    json.list[i]['show'] = false;
+                    if (json.list[i]['creator']['avatar'] !== undefined) {
+                        json.list[i]['ava'] = json.list[i]['creator']['avatar']['small'];
+                    } else {
+                        json.list[i]['ava'] = false;
+                    }
+                    if (json.list[i]['files'].length >= 1) {
+                        if (json.list[i]['files'][0]['type'] !== 'VIDEO') {
+                            json.list[i]['files'][0]['typeBool'] = false;
+                        } else {
+                            json.list[i]['files'][0]['typeBool'] = true;
+                            json.list[i]['files'][0]['width'] = '100%';
+                            json.list[i]['files'][0]['src'] = json.list[i]['files'][0]['file']['small'];
+                            json.list[i]['files'][0]['poster'] = json.list[i]['files'][0]['file']['thumbnail'];
+                        }
+                    } else {
+                        console.log('kek')
+                    }
+                }
+                return json.list;
+            }
         },
-        mounted() {
-            this.updateList();
-        }
+
     }
 </script>
 <style lang="css">
