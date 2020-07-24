@@ -3,7 +3,9 @@ import App from './App.vue'
 import vuetify from './plugins/vuetify';
 import VueCoreVideoPlayer from 'vue-core-video-player';
 import ScrollLoader from 'vue-scroll-loader'
+import VueAgile from 'vue-agile'
 
+Vue.use(VueAgile)
 Vue.use(ScrollLoader);
 Vue.component('VPip', require('v-pip'));
 Vue.config.productionTip = false;
