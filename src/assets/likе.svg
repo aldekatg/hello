@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="11px" viewBox="0 0 12 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Like</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Комментарии" transform="translate(-343.000000, -188.000000)" fill="#C8002A">
+            <path d="M349,199 L348.13,198.211716 C345.04,195.409264 343,193.559945 343,191.297003 C343,189.447684 344.449,188 346.3,188 C347.344,188 348.346,188.485559 349,189.249864 C349.654,188.485559 350.656,188 351.7,188 C353.551,188 355,189.447684 355,191.297003 C355,193.559945 352.96,195.409264 349.87,198.211716 L349,199 Z" id="Like"></path>
+        </g>
+    </g>
+</svg>
