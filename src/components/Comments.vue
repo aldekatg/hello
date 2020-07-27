@@ -5,6 +5,7 @@
                     v-for="comment in comments"
                     :comment="comment"
                     :key="comment.id"
+                    @open-rep-comment="openRepComment"
             ></single-comment>
         </div>
         <hr>
@@ -21,7 +22,8 @@
                     required
                     @keyup.enter="submitComment"
             />
-            <button class="reply--button" @click.prevent="submitComment"><i class="fa fa-paper-plane"></i>Отправить</button>
+            <button class="reply--button" @click.prevent="submitComment"><i class="fa fa-paper-plane"></i>Отправить
+            </button>
         </div>
     </div>
 </template>
@@ -45,6 +47,9 @@
                     this.$emit('submit-comment', this.reply);
                     this.reply = '';
                 }
+            },
+            openRepComment(comment) {
+                console.log(comment)
             }
         },
         props: ['comments', 'current_user', 'comments_wrapper_classes']
@@ -59,7 +64,6 @@
     .comments-wrapper {
         max-height: 250px;
         overflow-y: auto;
-        padding-right: 10px;
     }
 
     .custom-scrollbar::-webkit-scrollbar-track {

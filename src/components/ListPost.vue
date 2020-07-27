@@ -41,37 +41,23 @@
 
                             <v-pip class="video" :autoplay="true" v-show="card['files'][0]['typeBool']"
                                    :video-options="card['files'][0]"/>
-
-
                             <v-card-title>
                                 Новость дня
                             </v-card-title>
-                            <v-card-subtitle>
-                                {{card.creator.link}}
-                            </v-card-subtitle>
                             <v-card-actions>
                                 <v-btn icon v-on:click="card['canLike'] ? likePost(card) : unLikePost(card)">
                                     <v-icon v-bind:color="card['canLike'] ? 'grey' : 'pink'">mdi-heart</v-icon>
                                 </v-btn>
                                 <span class="subheading mr-2">{{card.like_count}}</span>
-                                <v-btn icon>
-                                    <v-icon>mdi-share-variant</v-icon>
-                                </v-btn>
-                                <span class="subheading mr-2">{{card.share_count}}</span>
                                 <v-btn icon v-on:click="commentPost(card)">
                                     <v-icon>mdi-comment</v-icon>
                                 </v-btn>
                                 <span class="subheading mr-2">{{card.comment_count}}</span>
-                                <v-spacer></v-spacer>
-
-                                <v-btn icon
-                                       @click="card.show = !card.show">
-                                    <v-icon>{{ card.show ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
-                                </v-btn>
                             </v-card-actions>
                             <v-card-text>
-                                <v-divider class="mx-2"></v-divider>
+                                {{card.text}}
                             </v-card-text>
+
                             <v-expand-transition>
                                 <div v-show="card.show">
                                     <v-divider></v-divider>
@@ -82,6 +68,8 @@
                                                 :current_user="current_user"
                                                 @submit-comment="submitComment"
                                         ></comments>
+                                        <SingleComment @like="onLike"></SingleComment>
+
                                     </v-card-text>
                                 </div>
                             </v-expand-transition>
@@ -93,20 +81,20 @@
             </scroll-loader>
         </v-card>
     </div>
-
 </template>
 <script>
     import VPip from 'v-pip';
     import Comments from './Comments.vue'
+    import SingleComment from './SingleComment.vue'
 
     export default {
         components: {
             VPip,
-            Comments
+            Comments,
+            SingleComment
         },
-        name: 'HelloWorld',
-        props: {
-        },
+        name: 'ListPost',
+        props: {},
         data() {
             return {
                 dataS: [],
@@ -115,7 +103,6 @@
                 loadMore: true,
                 pageSize: Number,
                 post_code: String,
-                likes: 15,
                 current_user: {
                     avatar: 'http://via.placeholder.com/100x100/a74848',
                     user: 'Вы'
@@ -171,7 +158,10 @@
                 }
                 return json.list;
             },
-            likePost(event) {
+            onLike(event){
+                console.log(event)
+            },
+            likePost: function(event) {
                 console.log(event)
                 let paramsData = {
                     command: 'sn_like_feed_post',
@@ -238,6 +228,7 @@
                 }
             },
             commentPost(event) {
+                this.comments = [];
                 let paramsData = {
                     command: 'sn_get_feed_post_comments',
                     params: {
@@ -253,14 +244,19 @@
                 })
                     .then(res => res.json())
                     .then((json) => {
-                        console.log(json);
+                        event['show'] = !event['show'];
+
                         let data = json.list;
+                        console.log(data)
                         for (let i = 0; i < data.length; i++) {
                             this.comments.push({
                                 id: data[i]['id'],
                                 user: data[i]['profile']['nickName'],
                                 avatar: data[i]['profile']['avatar']['small'],
-                                text: data[i]['message']
+                                text: data[i]['message'],
+                                subComment: data[i]['replies'],
+                                like_count: data[i]['like_count'],
+                                code: data[i]['code']
                             })
                         }
                     })
@@ -269,12 +265,7 @@
                     });
             },
             submitComment: function (reply) {
-                this.comments.push({
-                    id: this.comments.length + 1,
-                    user: this.current_user.user,
-                    avatar: this.current_user.avatar,
-                    text: reply
-                });
+                console.log(reply)
             }
         },
 

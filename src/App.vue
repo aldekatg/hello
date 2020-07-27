@@ -1,18 +1,18 @@
 <template>
     <v-app>
         <v-main>
-            <HelloWorld/>
+            <ListPost/>
         </v-main>
     </v-app>
 </template>
 
 <script>
-    import HelloWorld from './components/HelloWorld';
+    import ListPost from './components/ListPost';
 
     export default {
         name: 'App',
         components: {
-            HelloWorld,
+            ListPost,
         },
 
         data: () => ({
