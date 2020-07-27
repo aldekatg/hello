@@ -20,7 +20,7 @@
                                 </v-list-item-content>
                             </v-list-item>
 
-                            <main v-show="!card['files'][0]['typeBool']">
+                            <main v-show="!card['files'][0]['typeBool']"> <!--поменять логику карусели с видео-->
                                 <agile>
                                     <div v-for="img in card['files']">
                                         <v-img :src="img">
@@ -71,35 +71,17 @@
                             </v-card-actions>
                             <v-card-text>
                                 <v-divider class="mx-2"></v-divider>
-<!--                                <div class="comments-outside">-->
-<!--                                    <div class="comments-header">-->
-<!--                                        <div class="comments-stats">-->
-<!--                                            <span><i class="fa fa-thumbs-up"></i> sada</span>-->
-<!--                                            <span><i class="fa fa-comment"></i> [[ comments.length ]]</span>-->
-<!--                                        </div>-->
-<!--                                        <div class="project-owner">-->
-<!--                                            <div class="avatar">-->
-<!--                                                <img :src="card['ava']" alt="">-->
-<!--                                            </div>-->
-<!--                                            <div class="username">-->
-<!--                                                <a href="#">@[[ creator.user ]]</a>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                    </div>-->
-<!--                                    <comments-->
-<!--                                            :comments_wrapper_classes="['custom-scrollbar', 'comments-wrapper']"-->
-<!--                                            :comments="comments"-->
-<!--                                            :current_user="current_user"-->
-<!--                                            @submit-comment="submitComment"-->
-<!--                                    ></comments>-->
-<!--                                </div>-->
                             </v-card-text>
                             <v-expand-transition>
                                 <div v-show="card.show">
                                     <v-divider></v-divider>
-
                                     <v-card-text>
-                                        {{card.text}}
+                                        <comments
+                                                :comments_wrapper_classes="['custom-scrollbar', 'comments-wrapper']"
+                                                :comments="comments"
+                                                :current_user="current_user"
+                                                @submit-comment="submitComment"
+                                        ></comments>
                                     </v-card-text>
                                 </div>
                             </v-expand-transition>
@@ -115,12 +97,16 @@
 </template>
 <script>
     import VPip from 'v-pip';
+    import Comments from './Comments.vue'
 
     export default {
         components: {
-            VPip
+            VPip,
+            Comments
         },
         name: 'HelloWorld',
+        props: {
+        },
         data() {
             return {
                 dataS: [],
@@ -128,7 +114,13 @@
                 totalPage: Number,
                 loadMore: true,
                 pageSize: Number,
-                post_code: String
+                post_code: String,
+                likes: 15,
+                current_user: {
+                    avatar: 'http://via.placeholder.com/100x100/a74848',
+                    user: 'Вы'
+                },
+                comments: []
             }
         },
         methods: {
@@ -261,73 +253,139 @@
                 })
                     .then(res => res.json())
                     .then((json) => {
-                        console.log(json)
+                        console.log(json);
+                        let data = json.list;
+                        for (let i = 0; i < data.length; i++) {
+                            this.comments.push({
+                                id: data[i]['id'],
+                                user: data[i]['profile']['nickName'],
+                                avatar: data[i]['profile']['avatar']['small'],
+                                text: data[i]['message']
+                            })
+                        }
                     })
                     .catch((err) => {
                         console.error(err);
                     });
             },
+            submitComment: function (reply) {
+                this.comments.push({
+                    id: this.comments.length + 1,
+                    user: this.current_user.user,
+                    avatar: this.current_user.avatar,
+                    text: reply
+                });
+            }
         },
 
     }
 </script>
-<style lang="sass">
-    // VueAgile styles
-    .agile
-        &__nav-button
-            background: transparent
-            border: none
-            color: #fff
-            cursor: pointer
-            font-size: 24px
-            height: 100%
-            position: absolute
-            top: 0
-            transition-duration: .3s
-            width: 80px
+<style lang="css">
+    .agile__nav-button {
+        background: transparent;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        font-size: 24px;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        -webkit-transition-duration: 0.3s;
+        transition-duration: 0.3s;
+        width: 80px;
+    }
 
-            &:hover
-                background-color: rgba(#000, .5)
-                opacity: 1
+    .agile__nav-button:hover {
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 1;
+    }
 
-            &--prev
-                left: 0
+    .agile__nav-button--prev {
+        left: 0;
+    }
 
-            &--next
-                right: 0
+    .agile__nav-button--next {
+        right: 0;
+    }
 
-        &__dots
-            bottom: 10px
-            left: 50%
-            position: absolute
-            transform: translateX(-50%)
+    .agile__dots {
+        bottom: 10px;
+        left: 50%;
+        position: absolute;
+        -webkit-transform: translateX(-50%);
+        transform: translateX(-50%);
+    }
 
-        &__dot
-            margin: 0 10px
+    .agile__dot {
+        margin: 0 10px;
+    }
 
-            button
-                background-color: transparent
-                border: 1px solid #fff
-                border-radius: 50%
-                cursor: pointer
-                display: block
-                height: 10px
-                font-size: 0
-                line-height: 0
-                margin: 0
-                padding: 0
-                transition-duration: .3s
-                width: 10px
+    .agile__dot button {
+        background-color: transparent;
+        border: 1px solid #fff;
+        border-radius: 50%;
+        cursor: pointer;
+        display: block;
+        height: 10px;
+        font-size: 0;
+        line-height: 0;
+        margin: 0;
+        padding: 0;
+        -webkit-transition-duration: 0.3s;
+        transition-duration: 0.3s;
+        width: 10px;
+    }
 
-            &--current,
-            &:hover
-                button
-                    background-color: #fff
+    .agile__dot--current button, .agile__dot:hover button {
+        background-color: #fff;
+    }
 
-        // Slides styles
-        .slide
-            display: block
-            height: 500px
-            object-fit: cover
-            width: 100%
+    .slide {
+        display: block;
+        height: 500px;
+        -o-object-fit: cover;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .comments-outside {
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        margin: 0 auto;
+        max-width: 600px;
+    }
+
+    .comments-header {
+        background-color: #C8C8C8;
+        padding: 10px;
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        color: #333;
+        min-height: 80px;
+        font-size: 20px;
+    }
+
+    .comments-header .comments-stats span {
+        margin-left: 10px;
+    }
+
+    .post-owner {
+        display: flex;
+        align-items: center;
+    }
+
+    .post-owner .avatar > img {
+        width: 30px;
+        height: 30px;
+        border-radius: 100%;
+    }
+
+    .post-owner .username {
+        margin-left: 5px;
+    }
+
+    .post-owner .username > a {
+        color: #333;
+    }
+
 </style>
